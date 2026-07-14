@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Live2D</title>
+    <script src="https://cdn.jsdelivr.net/npm/pixi.js@7/dist/pixi.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@live2d/cubismcore@latest/dist/live2dcubismcore.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@live2d/pixi.js@latest/dist/bundle.js"></script>
+    <style>
+        body { margin: 0; overflow: hidden; background: #2a2a2a; }
+        canvas { display: block; }
+    </style>
+</head>
+<body>
+<script>
+    const app = new PIXI.Application({
+        view: document.createElement('canvas'),
+        width: window.innerWidth,
+        height: window.innerHeight,
+        backgroundAlpha: 1,
+        backgroundColor: 0x2a2a2a
+    });
+    document.body.appendChild(app.view);
+
+    const MODEL_PATH = './modelweb.model3.json'; 
+
+    PIXI.Live2DModel.from(MODEL_PATH)
+        .then(model => {
+            app.stage.addChild(model);
+            model.position.set(window.innerWidth / 2, window.innerHeight / 2);
+            model.scale.set(0.4);
+
+            window.addEventListener('mousemove', (e) => {
+                const x = (e.clientX / window.innerWidth) * 2 - 1;
+                const y = (e.clientY / window.innerHeight) * 2 - 1;
+                model.setParameterValueById('ParamAngleX', x * 30);
+                model.setParameterValueById('ParamAngleY', y * 20);
+            });
+
+            window.addEventListener('resize', () => {
+                app.renderer.resize(window.innerWidth, window.innerHeight);
+                model.position.set(window.innerWidth / 2, window.innerHeight / 2);
+            });
+        })
+        .catch(err => {
+            console.error(err);
+            alert('Ошибка: modelweb.model3.json не найден');
+        });
+</script>
+</body>
+</html>
