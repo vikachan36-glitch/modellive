@@ -3,18 +3,19 @@
 <head>
 <meta charset="UTF-8">
 
-<script src="https://cubism.live2d.com/sdk-web/cubismcore/live2dcubismcore.min.js"></script>
-
 <script src="https://cdn.jsdelivr.net/npm/pixi.js@6.5.10/dist/browser/pixi.min.js"></script>
 
+<script src="https://cubism.live2d.com/sdk-web/cubismcore/live2dcubismcore.min.js"></script>
+
 <script src="https://cdn.jsdelivr.net/npm/pixi-live2d-display/dist/cubism4.min.js"></script>
+
 
 <style>
 html,body{
 margin:0;
 padding:0;
-overflow:hidden;
 background:transparent;
+overflow:hidden;
 }
 
 canvas{
@@ -24,11 +25,11 @@ display:block;
 
 </head>
 
+
 <body>
 
-<script>
 
-window.PIXI = PIXI;
+<script>
 
 
 const app = new PIXI.Application({
@@ -44,35 +45,52 @@ document.body.appendChild(app.view);
 
 (async()=>{
 
+
+try {
+
+
 const model = await PIXI.live2d.Live2DModel.from(
 "https://vikachan36-glitch.github.io/modellive/modelweb/modelweb.model3.json"
 );
+
 
 
 app.stage.addChild(model);
 
 
 
-model.scale.set(0.35);
+model.anchor.set(0.5,1);
 
 model.x=250;
 model.y=700;
 
+model.scale.set(0.35);
 
 
-// поворот за мышкой
-document.addEventListener("mousemove",(e)=>{
 
-let x=e.clientX;
-let y=e.clientY;
-
-model.focus(x,y);
-
+model.on("hit",()=>{
+console.log("click");
 });
 
 
 
+console.log("MODEL LOADED");
+
+
+}
+catch(e){
+
+console.error(e);
+
+document.body.innerHTML =
+"<h2 style='color:white'>ОШИБКА:<br>"+e+"</h2>";
+
+}
+
+
+
 })();
+
 
 </script>
 
