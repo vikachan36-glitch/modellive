@@ -2,37 +2,48 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Моя Live2D модель</title>
+  <title>Live2D Модель</title>
   <style>
+    * { margin: 0; padding: 0; }
     body {
-      margin: 0;
       display: flex;
       justify-content: center;
       align-items: center;
       min-height: 100vh;
-      background: transparent;
-      overflow: hidden;
+      background: #1a1a2e;
     }
     #l2d-container {
-      width: 400px;
-      height: 600px;
-      pointer-events: none; /* Чтобы не мешать вашему курсору на Крафтум */
+      width: 450px;
+      height: 650px;
+      border: 2px solid #ff6b6b;
+      background: #16213e;
+      border-radius: 12px;
+      overflow: hidden;
     }
   </style>
 </head>
 <body>
   <div id="l2d-container"></div>
 
-  <script src="https://unpkg.com/l2d-widget/dist/index.min.js"></script>
+  <script src="https://unpkg.com/l2d-widget@0.4.0/dist/index.min.js"></script>
   <script>
+    console.log('Скрипт начал работу');
+    
+    const container = document.getElementById('l2d-container');
+    console.log('Контейнер найден:', container);
+
     const widget = createWidget({
-      container: document.getElementById('l2d-container'),
+      container: container,
       model: {
         path: 'https://raw.githubusercontent.com/vikachan36-glitch/modellive/main/modelweb/modelweb.model3.json'
       },
       pointerEvents: false,
-      eyeTracking: true
+      eyeTracking: true,
+      width: 450,
+      height: 650
     });
+
+    console.log('Виджет создан:', widget);
   </script>
 </body>
 </html>
