@@ -1,93 +1,63 @@
 <!DOCTYPE html>
-<html>
+<html lang="ru">
 <head>
-    <meta charset="UTF-8">
-    <title>Модель</title>
-    <style>
-        body {
-            margin: 0;
-            overflow: hidden;
-            background: transparent;
-        }
-        canvas {
-            display: block;
-        }
-        #status {
-            position: absolute;
-            bottom: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            color: #aaa;
-            background: rgba(0,0,0,0.6);
-            padding: 4px 16px;
-            border-radius: 20px;
-            font: 14px sans-serif;
-            pointer-events: none;
-            white-space: nowrap;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Моя Live2D модель</title>
+  <style>
+    /* Убираем отступы и скроллы */
+    * {
+      margin: 0;
+      padding: 0;
+    }
+    body {
+      background: #2c2c2c;
+      width: 100vw;
+      height: 100vh;
+      overflow: hidden;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    /* Контейнер для модели */
+    #live2d-container {
+      width: 500px;
+      height: 700px;
+      position: relative;
+    }
+    /* Холст внутри контейнера */
+    #live2d-container canvas {
+      width: 100% !important;
+      height: 100% !important;
+      display: block;
+    }
+  </style>
 </head>
 <body>
-    <div id="status">Загрузка...</div>
 
-    <!-- Подключаем PixiJS (рабочая ссылка) -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/pixi.js/7.4.2/pixi.min.js"></script>
+  <div id="live2d-container"></div>
 
-    <!-- Подключаем плагин Live2D (рабочая ссылка) -->
-    <script src="https://cdn.jsdelivr.net/npm/pixi-live2d-display@0.4.0/dist/pixi-live2d-display.min.js"></script>
+  <!-- Подключаем библиотеку для работы с Live2D -->
+  <script src="https://unpkg.com/l2d-widget@0.2.10/dist/index.min.js"></script>
 
-    <script>
-        // 1. Проверка, что библиотеки загрузились
-        if (typeof PIXI === 'undefined' || typeof PIXI.live2d === 'undefined') {
-            document.body.innerHTML = 'Ошибка загрузки библиотек. Проверьте интернет.';
-            throw new Error('Библиотеки не загружены');
-        }
+  <script>
+    // Ждём, пока библиотека загрузится
+    window.addEventListener('load', () => {
+      // Создаём виджет с моделью
+      const widget = createWidget({
+        // Путь к вашей модели (относительно корня сайта)
+        model: {
+          path: './modelweb/modelweb.model3.json',
+        },
+        // Включаем слежение за курсором
+        eyeTracking: true,
+        // Отключаем перехват мыши, чтобы не мешать другим элементам
+        pointerEvents: false,
+        // Размещаем модель внутри контейнера
+        container: document.getElementById('live2d-container'),
+      });
+    });
+  </script>
 
-        // 2. Создаём приложение (холст) с прозрачным фоном
-        const app = new PIXI.Application({
-            width: 500,
-            height: 700,
-            transparent: true,
-            backgroundAlpha: 0
-        });
-        document.body.prepend(app.view);
-
-        // 3. Загружаем ВАШУ модель по ВАШЕЙ ссылке
-        (async () => {
-            try {
-                // ЭТО ГЛАВНОЕ: используется ваш файл modelweb.model3.json
-                const model = await PIXI.live2d.Live2DModel.from(
-                    'https://vikachan36-glitch.github.io/modellive/modelweb/modelweb.model3.json'
-                );
-
-                model.anchor.set(0.5, 0.5);
-                model.x = app.screen.width / 2;
-                model.y = app.screen.height / 2;
-                model.scale.set(0.4); // Подберите размер
-
-                app.stage.addChild(model);
-                document.getElementById('status').textContent = 'Готово';
-
-                // 4. Слежение за курсором
-                app.stage.interactive = true;
-                app.stage.on('mousemove', (e) => {
-                    const pos = e.data.global;
-                    const dx = (pos.x / app.screen.width - 0.5) * 2;
-                    const dy = (pos.y / app.screen.height - 0.5) * -2;
-
-                    // Используем параметры из вашего cdi3.json
-                    const motion = model.internalModel.motionManager;
-                    motion.setParam('ParamAngleX', dx * 30);
-                    motion.setParam('ParamAngleY', dy * 20);
-                    motion.setParam('ParamEyeBallX', dx);
-                    motion.setParam('ParamEyeBallY', dy);
-                });
-
-            } catch (err) {
-                console.error(err);
-                document.getElementById('status').textContent = 'Ошибка: ' + err.message;
-            }
-        })();
-    </script>
 </body>
 </html>
