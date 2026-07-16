@@ -9,13 +9,13 @@
 
 <style>
 html,body{
-margin:0;
-padding:0;
-background:transparent;
-overflow:hidden;
+  margin:0;
+  padding:0;
+  background:transparent;
+  overflow:hidden;
 }
 canvas{
-display:block;
+  display:block;
 }
 </style>
 </head>
@@ -23,41 +23,56 @@ display:block;
 <body>
 <script>
 const app = new PIXI.Application({
-    width:500,
-    height:700,
-    transparent:true
+  width: 500,
+  height: 700,
+  transparent: true
 });
 document.body.appendChild(app.view);
 
-(async()=>{
-    try {
-        const model = await PIXI.live2d.Live2DModel.from(
-            "https://vikachan36-glitch.github.io/modellive/modelweb/modelweb.model3.json"
-        );
-        app.stage.addChild(model);
-        model.anchor.set(0.5,1);
-        model.x=750;
-        model.y=850;
-        model.scale.set(0.20);
-        model.on("hit",()=>{
-            console.log("click");
-        });
-        console.log("MODEL LOADED");
-        
-        // === ОТПРАВКА КООРДИНАТ В РОДИТЕЛЬСКОЕ ОКНО ===
-        document.addEventListener('mousemove', (e) => {
-            window.parent.postMessage({
-                type: 'cursorMove',
-                x: e.clientX,
-                y: e.clientY
-            }, '*');
-        });
-    }
-    catch(e){
-        console.error(e);
-        document.body.innerHTML =
-        "<h2 style='color:white'>ОШИБКА:<br>"+e+"</h2>";
-    }
+(async () => {
+  try {
+    const model = await PIXI.live2d.Live2DModel.from(
+      "modelweb.model3.json"
+    );
+
+    app.stage.addChild(model);
+
+    model.anchor.set(0.5, 0.5);
+    model.x = 250;
+    model.y = 350;
+    model.scale.set(0.20);
+
+    // === СЛЕЖЕНИЕ ЗА КУРСОРОМ ===
+    let targetAngleX = 0;
+    let targetAngleY = 0;
+    let currentAngleX = 0;
+    let currentAngleY = 0;
+
+    document.addEventListener('mousemove', (e) => {
+      const rect = app.view.getBoundingClientRect();
+      const x = (e.clientX - rect.left) / rect.width;
+      const y = (e.clientY - rect.top) / rect.height;
+
+      targetAngleX = (x - 0.5) * 40;
+      targetAngleY = (y - 0.5) * -40;
+    });
+
+    app.ticker.add(() => {
+      currentAngleX += (targetAngleX - currentAngleX) * 0.08;
+      currentAngleY += (targetAngleY - currentAngleY) * 0.08;
+
+      if (model.internalModel) {
+        model.internalModel.setParameterValueById("ParamAngleX", currentAngleX);
+        model.internalModel.setParameterValueById("ParamAngleY", currentAngleY);
+      }
+    });
+
+    console.log("MODEL LOADED");
+  }
+  catch(e) {
+    console.error(e);
+    document.body.innerHTML = "<h2 style='color:white'>ОШИБКА:<br>" + e + "</h2>";
+  }
 })();
 </script>
 </body>
