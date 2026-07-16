@@ -9,38 +9,76 @@
             overflow: hidden;
             background: transparent;
         }
-        #l2d-widget-container {
-            width: 100vw;
-            height: 100vh;
-            pointer-events: none;
+        canvas {
+            display: block;
         }
     </style>
 </head>
 <body>
-    <div id="l2d-widget-container"></div>
 
-    <!-- Подключаем библиотеку для Live2D -->
-    <script src="https://unpkg.com/l2d-widget@0.4.0/dist/index.min.js"></script>
+    <!-- 1. Подключаем PixiJS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pixi.js/7.4.2/pixi.min.js"></script>
     
+    <!-- 2. Подключаем плагин для Live2D -->
+    <script src="https://cdn.jsdelivr.net/npm/pixi-live2d-display@0.4.0/dist/pixi-live2d-display.min.js"></script>
+
     <script>
-        // Ждем, пока страница полностью загрузится
-        window.addEventListener('load', function() {
-            try {
-                const widget = createWidget({
-                    container: document.getElementById('l2d-widget-container'),
-                    model: {
-                        path: 'https://raw.githubusercontent.com/vikachan36-glitch/modellive/main/modelweb/modelweb.model3.json'
-                    },
-                    pointerEvents: false,
-                    eyeTracking: true,
-                    width: 500,
-                    height: 700
-                });
-                console.log('Виджет создан успешно');
-            } catch (error) {
-                console.error('Ошибка при создании виджета:', error);
-            }
+        // Проверяем, что библиотеки загрузились
+        if (typeof PIXI === 'undefined') {
+            document.body.innerHTML = 'Ошибка: PixiJS не загружен';
+            throw new Error('PixiJS not loaded');
+        }
+        if (typeof PIXI.live2d === 'undefined') {
+            document.body.innerHTML = 'Ошибка: Live2D плагин не загружен';
+            throw new Error('Live2D plugin not loaded');
+        }
+
+        // Создаем приложение
+        const app = new PIXI.Application({
+            width: 500,
+            height: 700,
+            transparent: true,
+            backgroundAlpha: 0
         });
+        document.body.prepend(app.view);
+
+        // Загружаем модель
+        (async () => {
+            try {
+                const model = await PIXI.live2d.Live2DModel.from(
+                    'https://raw.githubusercontent.com/vikachan36-glitch/modellive/main/modelweb/modelweb.model3.json'
+                );
+
+                model.anchor.set(0.5, 0.5);
+                model.x = app.screen.width / 2;
+                model.y = app.screen.height / 2;
+                model.scale.set(0.35);
+
+                app.stage.addChild(model);
+
+                // Слежение за мышью
+                app.stage.interactive = true;
+                app.stage.on('mousemove', (e) => {
+                    const pos = e.data.global;
+                    const dx = (pos.x / app.screen.width - 0.5) * 2;
+                    const dy = (pos.y / app.screen.height - 0.5) * -2;
+
+                    const motion = model.internalModel.motionManager;
+                    if (motion) {
+                        motion.setParam('PARAM_ANGLE_X', dx * 30);
+                        motion.setParam('PARAM_ANGLE_Y', dy * 20);
+                        motion.setParam('PARAM_EYE_BALL_X', dx);
+                        motion.setParam('PARAM_EYE_BALL_Y', dy);
+                    }
+                });
+
+                console.log('Модель загружена');
+
+            } catch (error) {
+                console.error('Ошибка загрузки:', error);
+                document.body.innerHTML = 'Ошибка: ' + error.message;
+            }
+        })();
     </script>
 </body>
 </html>
