@@ -2,13 +2,12 @@
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<title>Live2D Viewer</title>
+<title>Live2D Model</title>
 
 <style>
 html,body{
     margin:0;
+    padding:0;
     width:100%;
     height:100%;
     overflow:hidden;
@@ -16,134 +15,75 @@ html,body{
 }
 
 canvas{
-    display:block;
     width:100%;
     height:100%;
 }
 </style>
 
-<script src="https://cdn.jsdelivr.net/npm/pixi.js@6/dist/browser/pixi.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/pixi-live2d-display/dist/cubism4.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/pixi-live2d-display/dist/index.min.js"></script>
+<script src="https://cubism.live2d.com/sdk-web/cubismcore/live2dcubismcore.min.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/pixi.js@7/dist/pixi.min.js"></script>
+
+<script type="module">
+
+import {Live2DModel} from 
+"https://cdn.jsdelivr.net/npm/pixi-live2d-display@0.4.0/dist/index.mjs";
+
+
+window.onload = async()=>{
+
+
+const app = new PIXI.Application({
+    view:document.querySelector("#canvas"),
+    resizeTo:window,
+    backgroundAlpha:0
+});
+
+
+const model = await Live2DModel.from(
+    "./modelweb/modelweb.model3.json"
+);
+
+
+app.stage.addChild(model);
+
+
+
+model.scale.set(0.35);
+
+model.x = window.innerWidth/2;
+
+model.y = window.innerHeight*0.85;
+
+
+
+model.anchor.set(0.5,0.5);
+
+
+
+window.addEventListener("resize",()=>{
+
+    model.x = window.innerWidth/2;
+    model.y = window.innerHeight*0.85;
+
+});
+
+
+
+model.on("hit",()=>{
+    console.log("click");
+});
+
+
+};
+
+</script>
 
 </head>
 
 <body>
 
 <canvas id="canvas"></canvas>
-
-<script>
-
-(async ()=>{
-
-const app = new PIXI.Application({
-    view: document.getElementById("canvas"),
-    resizeTo: window,
-    transparent:true,
-    antialias:true
-});
-
-const model = await PIXI.live2d.Live2DModel.from(
-    "./modelweb/modelweb.model3.json"
-);
-
-app.stage.addChild(model);
-
-function resize(){
-
-    const scale = Math.min(
-        window.innerWidth/900,
-        window.innerHeight/1200
-    );
-
-    model.scale.set(scale);
-
-    model.anchor.set(0.5,0.5);
-
-    model.x = window.innerWidth/2;
-
-    model.y = window.innerHeight*0.72;
-
-}
-
-resize();
-
-window.addEventListener("resize",resize);
-
-// =====================
-// Перетаскивание
-// =====================
-
-model.interactive = true;
-
-model.buttonMode = true;
-
-model.on("pointerdown",(e)=>{
-
-    model.dragging=true;
-
-    model.data=e.data;
-
-});
-
-model.on("pointerup",()=>{
-
-    model.dragging=false;
-
-    model.data=null;
-
-});
-
-model.on("pointerupoutside",()=>{
-
-    model.dragging=false;
-
-    model.data=null;
-
-});
-
-model.on("pointermove",()=>{
-
-    if(model.dragging){
-
-        const pos=model.data.getLocalPosition(model.parent);
-
-        model.position.set(pos.x,pos.y);
-
-    }
-
-});
-
-// =====================
-// Клик
-// =====================
-
-model.on("hit",(hitAreas)=>{
-
-    console.log(hitAreas);
-
-});
-
-// =====================
-// Idle-анимации
-// =====================
-
-try{
-
-model.motion("Idle");
-
-}catch(e){}
-
-// =====================
-// FPS
-// =====================
-
-app.ticker.add(()=>{
-
-});
-
-})();
-</script>
 
 </body>
 </html>
