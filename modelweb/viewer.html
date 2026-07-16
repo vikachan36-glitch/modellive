@@ -4,11 +4,8 @@
 <meta charset="UTF-8">
 
 <script src="https://cdn.jsdelivr.net/npm/pixi.js@6.5.10/dist/browser/pixi.min.js"></script>
-
 <script src="https://cubism.live2d.com/sdk-web/cubismcore/live2dcubismcore.min.js"></script>
-
 <script src="https://cdn.jsdelivr.net/npm/pixi-live2d-display/dist/cubism4.min.js"></script>
-
 
 <style>
 html,body{
@@ -17,83 +14,51 @@ padding:0;
 background:transparent;
 overflow:hidden;
 }
-
 canvas{
 display:block;
 }
 </style>
-
 </head>
 
-
 <body>
-
-
 <script>
-
-
 const app = new PIXI.Application({
     width:500,
     height:700,
     transparent:true
 });
-
-
 document.body.appendChild(app.view);
 
-
-
 (async()=>{
-
-
-try {
-
-
-const model = await PIXI.live2d.Live2DModel.from(
-"https://vikachan36-glitch.github.io/modellive/modelweb/modelweb.model3.json"
-);
-
-
-
-app.stage.addChild(model);
-
-
-
-model.anchor.set(0.5,1);
-
-model.x=150;
-model.y=850;
-
-model.scale.set(0.20);
-
-
-
-model.on("hit",()=>{
-console.log("click");
-});
-
-
-
-console.log("MODEL LOADED");
-
-
-}
-catch(e){
-
-console.error(e);
-
-document.body.innerHTML =
-"<h2 style='color:white'>ОШИБКА:<br>"+e+"</h2>";
-
-}
-
-
-
+    try {
+        const model = await PIXI.live2d.Live2DModel.from(
+            "https://vikachan36-glitch.github.io/modellive/modelweb/modelweb.model3.json"
+        );
+        app.stage.addChild(model);
+        model.anchor.set(0.5,1);
+        model.x=150;
+        model.y=850;
+        model.scale.set(0.20);
+        model.on("hit",()=>{
+            console.log("click");
+        });
+        console.log("MODEL LOADED");
+        
+        // === ОТПРАВКА КООРДИНАТ В РОДИТЕЛЬСКОЕ ОКНО ===
+        document.addEventListener('mousemove', (e) => {
+            window.parent.postMessage({
+                type: 'cursorMove',
+                x: e.clientX,
+                y: e.clientY
+            }, '*');
+        });
+    }
+    catch(e){
+        console.error(e);
+        document.body.innerHTML =
+        "<h2 style='color:white'>ОШИБКА:<br>"+e+"</h2>";
+    }
 })();
-
-
 </script>
-
-
 </body>
 </html>
