@@ -2,25 +2,44 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>Модель</title>
+    <title>Live2D Модель</title>
     <style>
         body {
             margin: 0;
-            background: transparent;
             overflow: hidden;
+            background: transparent;
+        }
+        #l2d-widget-container {
+            width: 100vw;
+            height: 100vh;
+            pointer-events: none;
         }
     </style>
 </head>
 <body>
+    <div id="l2d-widget-container"></div>
 
+    <!-- Подключаем библиотеку для Live2D -->
     <script src="https://unpkg.com/l2d-widget@0.4.0/dist/index.min.js"></script>
+    
     <script>
-        createWidget({
-            model: {
-                path: 'https://raw.githubusercontent.com/vikachan36-glitch/modellive/main/modelweb/modelweb.model3.json'
-            },
-            pointerEvents: false,
-            eyeTracking: true
+        // Ждем, пока страница полностью загрузится
+        window.addEventListener('load', function() {
+            try {
+                const widget = createWidget({
+                    container: document.getElementById('l2d-widget-container'),
+                    model: {
+                        path: 'https://raw.githubusercontent.com/vikachan36-glitch/modellive/main/modelweb/modelweb.model3.json'
+                    },
+                    pointerEvents: false,
+                    eyeTracking: true,
+                    width: 500,
+                    height: 700
+                });
+                console.log('Виджет создан успешно');
+            } catch (error) {
+                console.error('Ошибка при создании виджета:', error);
+            }
         });
     </script>
 </body>
