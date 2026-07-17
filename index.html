@@ -1,66 +1,56 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="UTF-8">
-    <title>Live2D на сайте</title>
-    <!-- Подключаем движки через CDN (это и есть 1-й способ) -->
-    <script src="https://cdn.jsdelivr.net/npm/pixi.js@7/dist/pixi.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@live2d/cubismcore@latest/dist/live2dcubismcore.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@live2d/pixi.js@latest/dist/bundle.js"></script>
-    <style>
-        body { margin: 0; overflow: hidden; background: #2a2a2a; }
-        canvas { display: block; }
-    </style>
-</head>
-<body>
 <script>
-    // 1. Создаём сцену Pixi
-    const app = new PIXI.Application({
-        view: document.createElement('canvas'),
-        width: window.innerWidth,
-        height: window.innerHeight,
-        backgroundAlpha: 1,
-        backgroundColor: 0x2a2a2a
+window.PIXI = PIXI;
+
+const app = new PIXI.Application({
+    resizeTo: window,
+    transparent: true,
+    antialias: true,
+    autoDensity: true,
+    resolution: window.devicePixelRatio || 1
+});
+
+document.body.appendChild(app.view);
+
+(async () => {
+
+    const model = await PIXI.live2d.Live2DModel.from(
+        "https://vikachan36-glitch.github.io/modellive/modelweb/modelweb.model3.json"
+    );
+
+    app.stage.addChild(model);
+
+    function fitModel() {
+
+        const w = window.innerWidth;
+        const h = window.innerHeight;
+
+        // настоящий размер модели
+        const bounds = model.getLocalBounds();
+
+        // оставляем небольшой запас, чтобы ничего не обрезалось
+        const scale = Math.min(
+            w * 0.9 / bounds.width,
+            h * 0.9 / bounds.height
+        );
+
+        model.scale.set(scale);
+
+        // центр по горизонтали
+        model.x = w / 2;
+
+        // ноги почти у нижнего края
+        model.y = h * 0.98;
+
+        model.anchor.set(0.5, 1);
+    }
+
+    fitModel();
+
+    window.addEventListener("resize", fitModel);
+
+    document.addEventListener("mousemove", (e) => {
+        model.focus(e.clientX, e.clientY);
     });
-    document.body.appendChild(app.view);
 
-    // 2. Путь к файлу .model3.json (убедись, что название совпадает!)
-    const MODEL_PATH = './model.model3.json'; 
-
-    // 3. Загружаем модель
-    PIXI.Live2DModel.from(MODEL_PATH)
-        .then(model => {
-            // Добавляем модель на сцену
-            app.stage.addChild(model);
-            
-            // Центрируем
-            model.position.set(window.innerWidth / 2, window.innerHeight / 2);
-            model.scale.set(0.4); // Подгони размер под свой экран
-
-            // 4. *** КРУТИМ ГОЛОВОЙ ЗА МЫШКОЙ ***
-            window.addEventListener('mousemove', (e) => {
-                // Вычисляем, где мышь: -1 (левый край) ... 1 (правый край)
-                const x = (e.clientX / window.innerWidth) * 2 - 1;
-                const y = (e.clientY / window.innerHeight) * 2 - 1;
-
-                // Пробуем стандартные имена параметров Live2D
-                // Если не работает - поменяй названия на те, что в твоей модели
-                model.setParameterValueById('ParamAngleX', x * 30); // Влево-вправо
-                model.setParameterValueById('ParamAngleY', y * 20); // Вверх-вниз (по желанию)
-            });
-
-            // Перерисовываем при изменении размера окна
-            window.addEventListener('resize', () => {
-                app.renderer.resize(window.innerWidth, window.innerHeight);
-                model.position.set(window.innerWidth / 2, window.innerHeight / 2);
-            });
-
-            console.log('Модель загружена!');
-        })
-        .catch(err => {
-            console.error('Ошибка загрузки:', err);
-            alert('Не найден файл model.model3.json. Проверь путь и название файла!');
-        });
+})();
 </script>
-</body>
-</html>
