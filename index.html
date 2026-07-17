@@ -71,6 +71,12 @@ const model = await PIXI.live2d.Live2DModel.from(
 
 app.stage.addChild(model);
 
+// Принудительно скрываем курсор на canvas
+const canvas = app.view;
+canvas.style.cursor = 'none';
+canvas.style.setProperty('cursor', 'none', 'important');
+document.documentElement.style.cursor = 'none';
+document.body.style.cursor = 'none';
 
 
 function fitModel() {
