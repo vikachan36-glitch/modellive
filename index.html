@@ -73,48 +73,30 @@ app.stage.addChild(model);
 
 
 
-function fitModel(){
-
+function fitModel() {
 
     const w = window.innerWidth;
-
     const h = window.innerHeight;
 
+    // Получаем реальные размеры модели
+    const bounds = model.getBounds();
 
-
-    /*
-    масштаб.
-    Чем меньше число,
-    тем меньше персонаж.
-    */
-
-    let scale = Math.min(
-
-        w / 1000,
-
-        h / 1300
-
+    // Масштабируем с запасом
+    const scale = Math.min(
+        (w * 0.72) / bounds.width,
+        (h * 0.78) / bounds.height
     );
-
 
     model.scale.set(scale);
 
+    // Обновляем размеры после масштабирования
+    const b = model.getBounds();
 
+    // Строго по центру
+    model.x = w / 2 - (b.x + b.width / 2);
 
-    // центр
-
-    model.x = w / 2;
-
-
-
-    // положение по вертикали
-
-    model.y = h * 0.92;
-
-
-
-    model.anchor.set(0.5,1);
-
+    // Поднимаем модель так, чтобы было примерно по пояс
+    model.y = h * 0.60 - b.y;
 
 }
 
