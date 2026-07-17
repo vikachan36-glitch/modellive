@@ -8,11 +8,6 @@
 <script src="https://cdn.jsdelivr.net/npm/pixi-live2d-display/dist/cubism4.min.js"></script>
 
 <style>
-/* ===== 1. СКРЫВАЕМ СТАНДАРТНЫЙ КУРСОР НА ВСЁЙ СТРАНИЦЕ ===== */
-* {
-    cursor: none !important;
-}
-
 html, body {
     margin: 0;
     padding: 0;
@@ -22,13 +17,13 @@ html, body {
     background: transparent;
 }
 
-canvas {
-    display: block;
+
+* {
     cursor: none !important;
 }
 
-/* Дополнительная страховка для всех элементов */
-canvas, canvas *, #app, #app * {
+canvas {
+    display: block;
     cursor: none !important;
 }
 </style>
@@ -38,7 +33,6 @@ canvas, canvas *, #app, #app * {
 <body>
 
 <script>
-// ===== 2. ПОДКЛЮЧАЕМ PIXI =====
 window.PIXI = PIXI;
 
 const app = new PIXI.Application({
@@ -51,15 +45,14 @@ const app = new PIXI.Application({
 
 document.body.appendChild(app.view);
 
-// ===== 3. ПРИНУДИТЕЛЬНО СКРЫВАЕМ КУРСОР НА ХОЛСТЕ =====
+
 const canvas = app.view;
 canvas.style.cursor = 'none';
 canvas.style.setProperty('cursor', 'none', 'important');
-canvas.style.pointerEvents = 'none'; // <-- ОТКЛЮЧАЕМ СОБЫТИЯ МЫШИ
+canvas.style.pointerEvents = 'none'; 
 document.documentElement.style.cursor = 'none';
 document.body.style.cursor = 'none';
 
-// ===== 4. ЗАГРУЖАЕМ МОДЕЛЬ =====
 (async () => {
     const model = await PIXI.live2d.Live2DModel.from(
         "https://vikachan36-glitch.github.io/modellive/modelweb/modelweb.model3.json"
@@ -90,7 +83,7 @@ document.body.style.cursor = 'none';
 
     window.addEventListener("resize", fitModel);
 
-    // взгляд за мышкой
+    
     window.addEventListener("message", (event) => {
         if (event.data.type === "mouse") {
             model.focus(
@@ -101,16 +94,6 @@ document.body.style.cursor = 'none';
     });
 })();
 
-// ===== 5. КОСТЫЛЬ НА ВСЯКИЙ СЛУЧАЙ =====
-// Если PIXI сбросит курсор, этот код вернёт его обратно
-setInterval(() => {
-    const canvas2 = app.view;
-    if (canvas2) {
-        canvas2.style.cursor = 'none';
-        canvas2.style.pointerEvents = 'none';
-    }
-    document.body.style.cursor = 'none';
-}, 500);
 </script>
 
 </body>
