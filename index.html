@@ -1,56 +1,99 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+
+<script src="https://cdn.jsdelivr.net/npm/pixi.js@6.5.10/dist/browser/pixi.min.js"></script>
+
+<script src="https://cubism.live2d.com/sdk-web/cubismcore/live2dcubismcore.min.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/pixi-live2d-display/dist/cubism4.min.js"></script>
+
+
+<style>
+html,body{
+margin:0;
+padding:0;
+background:transparent;
+overflow:hidden;
+}
+
+canvas{
+display:block;
+}
+</style>
+
+</head>
+
+
+<body>
+
+
 <script>
-window.PIXI = PIXI;
+
 
 const app = new PIXI.Application({
-    resizeTo: window,
-    transparent: true,
-    antialias: true,
-    autoDensity: true,
-    resolution: window.devicePixelRatio || 1
+    width:500,
+    height:700,
+    transparent:true
 });
+
 
 document.body.appendChild(app.view);
 
-(async () => {
 
-    const model = await PIXI.live2d.Live2DModel.from(
-        "https://vikachan36-glitch.github.io/modellive/modelweb/modelweb.model3.json"
-    );
 
-    app.stage.addChild(model);
+(async()=>{
 
-    function fitModel() {
 
-        const w = window.innerWidth;
-        const h = window.innerHeight;
+try {
 
-        // настоящий размер модели
-        const bounds = model.getLocalBounds();
 
-        // оставляем небольшой запас, чтобы ничего не обрезалось
-        const scale = Math.min(
-            w * 0.9 / bounds.width,
-            h * 0.9 / bounds.height
-        );
+const model = await PIXI.live2d.Live2DModel.from(
+"https://vikachan36-glitch.github.io/modellive/modelweb/modelweb.model3.json"
+);
 
-        model.scale.set(scale);
 
-        // центр по горизонтали
-        model.x = w / 2;
 
-        // ноги почти у нижнего края
-        model.y = h * 0.98;
+app.stage.addChild(model);
 
-        model.anchor.set(0.5, 1);
-    }
 
-    fitModel();
 
-    window.addEventListener("resize", fitModel);
+model.anchor.set(0.5,1);
 
-    document.addEventListener("mousemove", (e) => {
-        model.focus(e.clientX, e.clientY);
-    });
+model.x=250;
+model.y=700;
+
+model.scale.set(0.35);
+
+
+
+model.on("hit",()=>{
+console.log("click");
+});
+
+
+
+console.log("MODEL LOADED");
+
+
+}
+catch(e){
+
+console.error(e);
+
+document.body.innerHTML =
+"<h2 style='color:white'>ОШИБКА:<br>"+e+"</h2>";
+
+}
+
+
 
 })();
+
+
 </script>
+
+
+</body>
+</html>
