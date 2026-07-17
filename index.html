@@ -8,7 +8,7 @@
 <script src="https://cdn.jsdelivr.net/npm/pixi-live2d-display/dist/cubism4.min.js"></script>
 
 <style>
-/* Скрываем стандартный курсор */
+/* ===== 1. СКРЫВАЕМ СТАНДАРТНЫЙ КУРСОР НА ВСЁЙ СТРАНИЦЕ ===== */
 * {
     cursor: none !important;
 }
@@ -26,26 +26,19 @@ canvas {
     display: block;
     cursor: none !important;
 }
+
+/* Дополнительная страховка для всех элементов */
+canvas, canvas *, #app, #app * {
+    cursor: none !important;
+}
 </style>
 
 </head>
 
 <body>
 
-<!-- ===== НЕВИДИМАЯ ПОДУШКА ===== -->
-<div id="mouse-padding" style="
-    position: fixed;
-    top: -50px;
-    left: -50px;
-    width: calc(100% + 100px);
-    height: calc(100% + 100px);
-    z-index: 9998;
-    pointer-events: all;
-    opacity: 0;
-    background: transparent;
-"></div>
-
 <script>
+// ===== 2. ПОДКЛЮЧАЕМ PIXI =====
 window.PIXI = PIXI;
 
 const app = new PIXI.Application({
@@ -58,15 +51,15 @@ const app = new PIXI.Application({
 
 document.body.appendChild(app.view);
 
-// ===== СКРЫВАЕМ СТАНДАРТНЫЙ КУРСОР НА ХОЛСТЕ =====
+// ===== 3. ПРИНУДИТЕЛЬНО СКРЫВАЕМ КУРСОР НА ХОЛСТЕ =====
 const canvas = app.view;
 canvas.style.cursor = 'none';
 canvas.style.setProperty('cursor', 'none', 'important');
-canvas.style.pointerEvents = 'none';
+canvas.style.pointerEvents = 'none'; // <-- ОТКЛЮЧАЕМ СОБЫТИЯ МЫШИ
 document.documentElement.style.cursor = 'none';
 document.body.style.cursor = 'none';
 
-// ===== ЗАГРУЖАЕМ МОДЕЛЬ =====
+// ===== 4. ЗАГРУЖАЕМ МОДЕЛЬ =====
 (async () => {
     const model = await PIXI.live2d.Live2DModel.from(
         "https://vikachan36-glitch.github.io/modellive/modelweb/modelweb.model3.json"
@@ -97,25 +90,19 @@ document.body.style.cursor = 'none';
 
     window.addEventListener("resize", fitModel);
 
-    // ===== ОТСЛЕЖИВАЕМ МЫШЬ НА ПОДУШКЕ =====
-    const pad = document.getElementById('mouse-padding');
-    pad.addEventListener('mousemove', (e) => {
-        // Передаём координаты в модель (нормализованные)
-        const x = (e.clientX / window.innerWidth) * 2 - 1;
-        const y = -((e.clientY / window.innerHeight) * 2 - 1);
-        model.focus(x, y);
+    // взгляд за мышкой
+    window.addEventListener("message", (event) => {
+        if (event.data.type === "mouse") {
+            model.focus(
+                event.data.x,
+                event.data.y
+            );
+        }
     });
-
-    // Подстраховка: если мышь уходит с подушки, всё равно ловим её на документе
-    document.addEventListener('mousemove', (e) => {
-        const x = (e.clientX / window.innerWidth) * 2 - 1;
-        const y = -((e.clientY / window.innerHeight) * 2 - 1);
-        model.focus(x, y);
-    });
-
 })();
 
-// ===== КОСТЫЛЬ НА ВСЯКИЙ СЛУЧАЙ =====
+// ===== 5. КОСТЫЛЬ НА ВСЯКИЙ СЛУЧАЙ =====
+// Если PIXI сбросит курсор, этот код вернёт его обратно
 setInterval(() => {
     const canvas2 = app.view;
     if (canvas2) {
