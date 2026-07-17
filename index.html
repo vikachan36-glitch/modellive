@@ -8,7 +8,7 @@
 <script src="https://cdn.jsdelivr.net/npm/pixi-live2d-display/dist/cubism4.min.js"></script>
 
 <style>
-/* Скрываем стандартный курсор */
+/* ===== 1. СКРЫВАЕМ КУРСОР НА ВСЁЙ СТРАНИЦЕ ===== */
 * {
     cursor: none !important;
 }
@@ -22,8 +22,28 @@ html, body {
     background: transparent;
 }
 
+/* ===== 2. НАСТРОЙКИ ДЛЯ ХОЛСТА ===== */
 canvas {
     display: block;
+    cursor: none !important;
+    /* Размываем границу, чтобы сгладить рывки */
+    transform: scale(1.02);
+    transform-origin: center center;
+    box-shadow: 0 0 100px 50px rgba(0,0,0,0.01);
+}
+
+/* ===== 3. ПОВЫШАЕМ СЛОЙ ДЛЯ КАСТОМНОЙ МЫШКИ ===== */
+#customCursor {
+    position: fixed;
+    pointer-events: none;
+    z-index: 99999 !important; /* Огромный слой, выше всего */
+    display: none;
+    /* Убираем задержку, чтобы мышка не тормозила */
+    transition: none !important;
+}
+
+/* Дополнительная страховка для всех элементов */
+canvas, canvas *, #app, #app * {
     cursor: none !important;
 }
 </style>
@@ -32,7 +52,7 @@ canvas {
 
 <body>
 
-<!-- ===== НЕВИДИМАЯ ПОДУШКА ===== -->
+<!-- ===== НЕВИДИМАЯ ПОДУШКА (для мыши) ===== -->
 <div id="mouse-padding" style="
     position: fixed;
     top: -100px;
@@ -100,13 +120,12 @@ document.body.style.cursor = 'none';
     // ===== ОТСЛЕЖИВАЕМ МЫШЬ НА ПОДУШКЕ =====
     const pad = document.getElementById('mouse-padding');
     pad.addEventListener('mousemove', (e) => {
-        // Передаём координаты в модель (нормализованные)
         const x = (e.clientX / window.innerWidth) * 2 - 1;
         const y = -((e.clientY / window.innerHeight) * 2 - 1);
         model.focus(x, y);
     });
 
-    // Подстраховка: если мышь уходит с подушки, всё равно ловим её на документе
+    // Подстраховка: если мышь уходит с подушки, ловим на документе
     document.addEventListener('mousemove', (e) => {
         const x = (e.clientX / window.innerWidth) * 2 - 1;
         const y = -((e.clientY / window.innerHeight) * 2 - 1);
@@ -115,7 +134,7 @@ document.body.style.cursor = 'none';
 
 })();
 
-// ===== КОСТЫЛЬ НА ВСЯКИЙ СЛУЧАЙ =====
+// ===== КОСТЫЛЬ, ЧТОБЫ КУРСОР НЕ ВСПЛЫВАЛ =====
 setInterval(() => {
     const canvas2 = app.view;
     if (canvas2) {
