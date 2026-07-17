@@ -4,142 +4,98 @@
 <meta charset="UTF-8">
 
 <script src="https://cdn.jsdelivr.net/npm/pixi.js@6.5.10/dist/browser/pixi.min.js"></script>
-
 <script src="https://cubism.live2d.com/sdk-web/cubismcore/live2dcubismcore.min.js"></script>
-
 <script src="https://cdn.jsdelivr.net/npm/pixi-live2d-display/dist/cubism4.min.js"></script>
 
-
 <style>
-
-html,body{
-    margin:0;
-    padding:0;
-    width:100%;
-    height:100%;
-    overflow:hidden;
-    background:transparent;
+html, body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    background: transparent;
 }
 
-
-canvas{
-    display:block;
+/* Скрываем стандартный курсор на всех элементах */
+* {
+    cursor: none !important;
 }
 
+canvas {
+    display: block;
+    cursor: none !important;
+}
 </style>
 
 </head>
 
-
 <body>
 
-
 <script>
-
 window.PIXI = PIXI;
 
-
 const app = new PIXI.Application({
-
     resizeTo: window,
-
-    transparent:true,
-
-    antialias:true,
-
-    autoDensity:true,
-
-    resolution:window.devicePixelRatio || 1
-
+    transparent: true,
+    antialias: true,
+    autoDensity: true,
+    resolution: window.devicePixelRatio || 1
 });
-
 
 document.body.appendChild(app.view);
 
-
-
-(async()=>{
-
-
-const model = await PIXI.live2d.Live2DModel.from(
-
-"https://vikachan36-glitch.github.io/modellive/modelweb/modelweb.model3.json"
-
-);
-
-
-
-app.stage.addChild(model);
-
-// Принудительно скрываем курсор на canvas
+// ====== СКРЫВАЕМ СТАНДАРТНЫЙ КУРСОР ======
+// Это должно быть ДО загрузки модели
 const canvas = app.view;
 canvas.style.cursor = 'none';
 canvas.style.setProperty('cursor', 'none', 'important');
+canvas.style.pointerEvents = 'none'; // ОТКЛЮЧАЕМ СОБЫТИЯ МЫШИ НА ХОЛСТЕ
 document.documentElement.style.cursor = 'none';
 document.body.style.cursor = 'none';
 
-
-function fitModel() {
-
-    const w = window.innerWidth;
-    const h = window.innerHeight;
-
-    const bounds = model.getBounds();
-
-    const scale = Math.min(
-        (w * 0.80) / bounds.width,
-        (h * 0.88) / bounds.height
+(async () => {
+    const model = await PIXI.live2d.Live2DModel.from(
+        "https://vikachan36-glitch.github.io/modellive/modelweb/modelweb.model3.json"
     );
 
-    model.scale.set(scale);
+    app.stage.addChild(model);
 
-    const b = model.getBounds();
+    function fitModel() {
+        const w = window.innerWidth;
+        const h = window.innerHeight;
 
-    model.x = w / 2 - (b.x + b.width / 2);
+        const bounds = model.getBounds();
 
-    model.y = h * 0.10 - b.y;
-
-}
-
-
-
-fitModel();
-
-
-
-window.addEventListener(
-
-"resize",
-
-fitModel
-
-);
-
-
-
-// взгляд за мышкой
-
-window.addEventListener("message", (event)=>{
-
-    if(event.data.type === "mouse"){
-
-        model.focus(
-            event.data.x,
-            event.data.y
+        const scale = Math.min(
+            (w * 0.80) / bounds.width,
+            (h * 0.88) / bounds.height
         );
 
+        model.scale.set(scale);
+
+        const b = model.getBounds();
+
+        model.x = w / 2 - (b.x + b.width / 2);
+        model.y = h * 0.10 - b.y;
     }
 
-});
+    fitModel();
 
+    window.addEventListener("resize", fitModel);
 
-
+    // взгляд за мышкой
+    window.addEventListener("message", (event) => {
+        if (event.data.type === "mouse") {
+            model.focus(
+                event.data.x,
+                event.data.y
+            );
+        }
+    });
 })();
 
-
-
 </script>
-
 
 </body>
 </html>
