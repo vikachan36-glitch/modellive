@@ -91,7 +91,7 @@ function fitModel() {
 
     model.x = w / 2 - (b.x + b.width / 2);
 
-    model.y = h * 0.20 - b.y;
+    model.y = h * 0.10 - b.y;
 
 }
 
@@ -113,20 +113,18 @@ fitModel
 
 // взгляд за мышкой
 
-document.addEventListener(
+window.addEventListener("message", (event)=>{
 
-"mousemove",
+    if(event.data.type === "mouse"){
 
-(e)=>{
+        model.focus(
+            event.data.x,
+            event.data.y
+        );
 
-    model.focus(
-        e.clientX,
-        e.clientY
-    );
+    }
 
-}
-
-);
+});
 
 
 
