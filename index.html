@@ -11,16 +11,21 @@
 
 
 <style>
+
 html,body{
-margin:0;
-padding:0;
-background:transparent;
-overflow:hidden;
+    margin:0;
+    padding:0;
+    width:100%;
+    height:100%;
+    overflow:hidden;
+    background:transparent;
 }
 
+
 canvas{
-display:block;
+    display:block;
 }
+
 </style>
 
 </head>
@@ -31,11 +36,21 @@ display:block;
 
 <script>
 
+window.PIXI = PIXI;
+
 
 const app = new PIXI.Application({
-    width:500,
-    height:700,
-    transparent:true
+
+    resizeTo: window,
+
+    transparent:true,
+
+    antialias:true,
+
+    autoDensity:true,
+
+    resolution:window.devicePixelRatio || 1
+
 });
 
 
@@ -46,11 +61,10 @@ document.body.appendChild(app.view);
 (async()=>{
 
 
-try {
-
-
 const model = await PIXI.live2d.Live2DModel.from(
+
 "https://vikachan36-glitch.github.io/modellive/modelweb/modelweb.model3.json"
+
 );
 
 
@@ -59,37 +73,88 @@ app.stage.addChild(model);
 
 
 
-model.anchor.set(0.5,1);
-
-model.x=250;
-model.y=700;
-
-model.scale.set(0.35);
+function fitModel(){
 
 
+    const w = window.innerWidth;
 
-model.on("hit",()=>{
-console.log("click");
-});
+    const h = window.innerHeight;
 
 
 
-console.log("MODEL LOADED");
+    /*
+    масштаб.
+    Чем меньше число,
+    тем меньше персонаж.
+    */
+
+    let scale = Math.min(
+
+        w / 1000,
+
+        h / 1300
+
+    );
+
+
+    model.scale.set(scale);
+
+
+
+    // центр
+
+    model.x = w / 2;
+
+
+
+    // положение по вертикали
+
+    model.y = h * 0.92;
+
+
+
+    model.anchor.set(0.5,1);
 
 
 }
-catch(e){
 
-console.error(e);
 
-document.body.innerHTML =
-"<h2 style='color:white'>ОШИБКА:<br>"+e+"</h2>";
+
+fitModel();
+
+
+
+window.addEventListener(
+
+"resize",
+
+fitModel
+
+);
+
+
+
+// взгляд за мышкой
+
+document.addEventListener(
+
+"mousemove",
+
+(e)=>{
+
+    model.focus(
+        e.clientX,
+        e.clientY
+    );
 
 }
+
+);
 
 
 
 })();
+
 
 
 </script>
