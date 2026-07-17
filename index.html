@@ -8,6 +8,11 @@
 <script src="https://cdn.jsdelivr.net/npm/pixi-live2d-display/dist/cubism4.min.js"></script>
 
 <style>
+/* ===== 1. СКРЫВАЕМ СТАНДАРТНЫЙ КУРСОР НА ВСЁЙ СТРАНИЦЕ ===== */
+* {
+    cursor: none !important;
+}
+
 html, body {
     margin: 0;
     padding: 0;
@@ -17,13 +22,13 @@ html, body {
     background: transparent;
 }
 
-/* Скрываем стандартный курсор на всех элементах */
-* {
+canvas {
+    display: block;
     cursor: none !important;
 }
 
-canvas {
-    display: block;
+/* Дополнительная страховка для всех элементов */
+canvas, canvas *, #app, #app * {
     cursor: none !important;
 }
 </style>
@@ -33,6 +38,7 @@ canvas {
 <body>
 
 <script>
+// ===== 2. ПОДКЛЮЧАЕМ PIXI =====
 window.PIXI = PIXI;
 
 const app = new PIXI.Application({
@@ -45,15 +51,15 @@ const app = new PIXI.Application({
 
 document.body.appendChild(app.view);
 
-// ====== СКРЫВАЕМ СТАНДАРТНЫЙ КУРСОР ======
-// Это должно быть ДО загрузки модели
+// ===== 3. ПРИНУДИТЕЛЬНО СКРЫВАЕМ КУРСОР НА ХОЛСТЕ =====
 const canvas = app.view;
 canvas.style.cursor = 'none';
 canvas.style.setProperty('cursor', 'none', 'important');
-canvas.style.pointerEvents = 'none'; // ОТКЛЮЧАЕМ СОБЫТИЯ МЫШИ НА ХОЛСТЕ
+canvas.style.pointerEvents = 'none'; // <-- ОТКЛЮЧАЕМ СОБЫТИЯ МЫШИ
 document.documentElement.style.cursor = 'none';
 document.body.style.cursor = 'none';
 
+// ===== 4. ЗАГРУЖАЕМ МОДЕЛЬ =====
 (async () => {
     const model = await PIXI.live2d.Live2DModel.from(
         "https://vikachan36-glitch.github.io/modellive/modelweb/modelweb.model3.json"
@@ -95,6 +101,16 @@ document.body.style.cursor = 'none';
     });
 })();
 
+// ===== 5. КОСТЫЛЬ НА ВСЯКИЙ СЛУЧАЙ =====
+// Если PIXI сбросит курсор, этот код вернёт его обратно
+setInterval(() => {
+    const canvas2 = app.view;
+    if (canvas2) {
+        canvas2.style.cursor = 'none';
+        canvas2.style.pointerEvents = 'none';
+    }
+    document.body.style.cursor = 'none';
+}, 500);
 </script>
 
 </body>
