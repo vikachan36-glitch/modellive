@@ -78,10 +78,8 @@ function fitModel() {
     const w = window.innerWidth;
     const h = window.innerHeight;
 
-    // Получаем реальные размеры модели
     const bounds = model.getBounds();
 
-    // Масштабируем с запасом
     const scale = Math.min(
         (w * 0.80) / bounds.width,
         (h * 0.88) / bounds.height
@@ -89,14 +87,11 @@ function fitModel() {
 
     model.scale.set(scale);
 
-    // Обновляем размеры после масштабирования
     const b = model.getBounds();
 
-    // Строго по центру
     model.x = w / 2 - (b.x + b.width / 2);
 
-    // Поднимаем модель так, чтобы было примерно по пояс
-    model.y = h * 0.40 - b.y;
+    model.y = h * 0.20 - b.y;
 
 }
 
